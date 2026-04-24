@@ -457,6 +457,144 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .modal-actions .btn { flex: 1; justify-content: center; }
 .btn-cancel { background: var(--surface2); color: var(--dim); border: 1px solid var(--border); }
 
+/* ── FLEET / DISPATCH ── */
+.fleet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.bus-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.bus-card:hover { border-color: rgba(0,229,255,0.25); }
+.bus-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--bus-color, var(--dim));
+}
+.bus-reg {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.bus-driver {
+  font-size: 0.82rem;
+  color: var(--dim);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bus-status-on  { --bus-color: var(--green); }
+.bus-status-off { --bus-color: var(--muted); }
+.bus-status-trip { --bus-color: var(--cyan); }
+.bus-status-req  { --bus-color: var(--amber); }
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.pill-on   { background: rgba(0,230,118,0.1); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+.pill-off  { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); }
+.pill-trip { background: rgba(0,229,255,0.1); color: var(--cyan); border: 1px solid rgba(0,229,255,0.25); }
+.pill-req  { background: rgba(255,183,0,0.1); color: var(--amber); border: 1px solid rgba(255,183,0,0.25); }
+
+.bus-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--dim);
+  margin: 8px 0;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+.bus-meta-row strong { color: var(--text); }
+
+.trip-log-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 90px 80px 80px 90px;
+  gap: 0;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-size: 0.83rem;
+  transition: background 0.1s;
+}
+.trip-log-row:hover { background: rgba(255,255,255,0.02); }
+.trip-log-head {
+  background: var(--surface2);
+  border-radius: 8px 8px 0 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.driver-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.driver-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--cyan-dim);
+  border: 2px solid rgba(0,229,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-weight: 900;
+  font-size: 0.9rem;
+  color: var(--cyan);
+  flex-shrink: 0;
+}
+.driver-info { flex: 1; }
+.driver-name { font-weight: 600; font-size: 0.9rem; }
+.driver-sub  { font-size: 0.75rem; color: var(--dim); margin-top: 2px; }
+.driver-stats {
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+.driver-stats strong { display: block; font-family: var(--font-head); font-size: 1rem; color: var(--cyan); }
+
+.req-card {
+  background: var(--surface);
+  border: 1px solid rgba(255,183,0,0.2);
+  border-left: 3px solid var(--amber);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.req-card .req-info { flex: 1; }
+.req-card .req-title { font-weight: 600; font-size: 0.9rem; }
+.req-card .req-sub { font-size: 0.78rem; color: var(--dim); margin-top: 3px; }
+.req-actions { display: flex; gap: 6px; }
+
 /* ── PRINT VIEW ── */
 @media print {
   .topbar, aside, .btn, .portal-tabs, .search-bar { display:none !important; }
@@ -473,6 +611,41 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   .stats-row { grid-template-columns: 1fr 1fr; }
   .form-grid.cols-4 { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── FLEET / DISPATCH ── */
+.fleet-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1rem; margin-top:1rem; }
+.bus-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.25rem; position:relative; overflow:hidden; transition:border-color 0.2s; }
+.bus-card:hover { border-color:rgba(0,229,255,0.25); }
+.bus-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--bus-color, var(--muted)); }
+.bus-reg { font-family:var(--font-head); font-size:1.1rem; font-weight:900; letter-spacing:1px; color:var(--text); margin-bottom:4px; }
+.bus-driver { font-size:0.82rem; color:var(--dim); margin-bottom:0.75rem; display:flex; align-items:center; gap:6px; }
+.bus-status-on  { --bus-color: var(--green); }
+.bus-status-off { --bus-color: var(--muted); }
+.bus-status-trip { --bus-color: var(--cyan); }
+.bus-status-req  { --bus-color: var(--amber); }
+.status-pill { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:0.72rem; font-weight:700; }
+.pill-on   { background:rgba(0,230,118,0.1); color:var(--green); border:1px solid rgba(0,230,118,0.25); }
+.pill-off  { background:rgba(255,255,255,0.05); color:var(--muted); border:1px solid var(--border); }
+.pill-trip { background:rgba(0,229,255,0.1); color:var(--cyan); border:1px solid rgba(0,229,255,0.25); }
+.pill-req  { background:rgba(255,183,0,0.1); color:var(--amber); border:1px solid rgba(255,183,0,0.25); }
+.bus-meta-row { display:flex; justify-content:space-between; font-size:0.78rem; color:var(--dim); margin:8px 0; padding:8px 0; border-top:1px solid var(--border); }
+.bus-meta-row strong { color:var(--text); }
+.trip-log-row { display:grid; grid-template-columns:75px 1fr 100px 60px 85px 90px; gap:0; align-items:center; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.03); font-size:0.83rem; }
+.trip-log-row:hover { background:rgba(255,255,255,0.02); }
+.trip-log-head { background:var(--surface2); border-radius:8px 8px 0 0; font-size:0.72rem; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--muted); }
+.driver-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem 1.25rem; display:flex; align-items:center; gap:12px; }
+.driver-avatar { width:40px; height:40px; border-radius:50%; background:var(--cyan-dim); border:2px solid rgba(0,229,255,0.3); display:flex; align-items:center; justify-content:center; font-family:var(--font-head); font-weight:900; font-size:0.9rem; color:var(--cyan); flex-shrink:0; }
+.driver-info { flex:1; }
+.driver-name { font-weight:600; font-size:0.9rem; }
+.driver-sub  { font-size:0.75rem; color:var(--dim); margin-top:2px; }
+.driver-stats { text-align:right; font-size:0.75rem; color:var(--dim); }
+.driver-stats strong { display:block; font-family:var(--font-head); font-size:1rem; color:var(--cyan); }
+.req-card { background:var(--surface); border:1px solid rgba(255,183,0,0.2); border-left:3px solid var(--amber); border-radius:12px; padding:1rem 1.25rem; margin-bottom:0.75rem; display:flex; align-items:center; gap:1rem; }
+.req-card .req-info { flex:1; }
+.req-card .req-title { font-weight:600; font-size:0.9rem; }
+.req-card .req-sub { font-size:0.78rem; color:var(--dim); margin-top:3px; }
+.req-actions { display:flex; gap:6px; }
+
 </style>
 </head>
 <body>
@@ -508,6 +681,21 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       </li>
       <li onclick="showPage('lostfound', this, 'station')">
         <i class="fa-solid fa-box-archive"></i> Lost & Found <span class="count" id="cnt-lf">0</span>
+      </li>
+    </ul></nav>
+    <div class="aside-label">Fleet & Dispatch</div>
+    <nav><ul>
+      <li onclick="showPage('fleet', this, 'station')">
+        <i class="fa-solid fa-bus"></i> Fleet Register <span class="count" id="cnt-fleet">0</span>
+      </li>
+      <li onclick="showPage('dispatch', this, 'station')">
+        <i class="fa-solid fa-clock"></i> Clock In / Out
+      </li>
+      <li onclick="showPage('trips', this, 'station')">
+        <i class="fa-solid fa-route"></i> Trip Log <span class="count" id="cnt-trips">0</span>
+      </li>
+      <li onclick="showPage('requests', this, 'station')">
+        <i class="fa-solid fa-hand"></i> Trip Requests <span class="count" id="cnt-req">0</span>
       </li>
     </ul></nav>
     <div class="aside-label">Infrastructure</div>
@@ -810,6 +998,243 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       </div>
     </div>
   </div>
+
+  <!-- ============================================================
+       STATION: FLEET REGISTER
+  ============================================================ -->
+  <div id="page-fleet" class="page">
+    <h2 style="font-family:var(--font-head); font-size:1.6rem; font-weight:900; margin-bottom:0.25rem;">Fleet Register</h2>
+    <p style="color:var(--dim); font-size:0.85rem; margin-bottom:1.5rem;">Register buses and drivers — set fare per trip</p>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:1rem;"><i class="fa-solid fa-plus" style="color:var(--cyan)"></i> Register New Bus</div>
+      <div class="form-grid cols-3" style="margin-bottom:0.75rem;">
+        <div class="form-group">
+          <label>Bus Registration Plate</label>
+          <input id="busReg" placeholder="e.g. ABX 1234 ZM" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="form-group">
+          <label>Car / Vehicle ID</label>
+          <input id="busCarId" placeholder="e.g. ZB-005">
+        </div>
+        <div class="form-group">
+          <label>Route / Destination</label>
+          <input id="busRoute" placeholder="e.g. Lusaka to Livingstone">
+        </div>
+      </div>
+      <div class="form-grid cols-3" style="margin-bottom:0.75rem;">
+        <div class="form-group">
+          <label>Assigned Driver Name</label>
+          <input id="busDriver" placeholder="Full name">
+        </div>
+        <div class="form-group">
+          <label>Driver Phone</label>
+          <input id="busDriverPhone" placeholder="+260">
+        </div>
+        <div class="form-group">
+          <label>Fare Per Trip (K)</label>
+          <input type="number" id="busFare" placeholder="e.g. 250">
+        </div>
+      </div>
+      <button class="btn" onclick="registerBus()"><i class="fa-solid fa-bus"></i> Register Bus</button>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem;" id="fleetStats"></div>
+
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-id-badge" style="color:var(--cyan)"></i> Registered Drivers</div>
+        <span id="driverCount" style="font-size:0.8rem; color:var(--dim);"></span>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:0.75rem;" id="driverGrid"></div>
+    </div>
+
+    <div class="card-header" style="margin-bottom:0.75rem;">
+      <div class="card-title"><i class="fa-solid fa-bus" style="color:var(--cyan)"></i> All Buses</div>
+      <select id="fleetFilter" onchange="renderFleet()" style="width:auto; padding:7px 10px; font-size:0.8rem;">
+        <option value="">All Status</option>
+        <option value="on">Clocked In</option>
+        <option value="off">Clocked Out</option>
+        <option value="trip">On Trip</option>
+      </select>
+    </div>
+    <div class="fleet-grid" id="fleetGrid"></div>
+  </div>
+
+  <!-- ============================================================
+       STATION: CLOCK IN / OUT
+  ============================================================ -->
+  <div id="page-dispatch" class="page">
+    <h2 style="font-family:var(--font-head); font-size:1.6rem; font-weight:900; margin-bottom:0.25rem;">Driver Clock In / Out</h2>
+    <p style="color:var(--dim); font-size:0.85rem; margin-bottom:1.5rem;">Log when drivers start and end their shift</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1.5rem;">
+      <div class="card" style="border-top:3px solid var(--green);">
+        <div class="card-title" style="margin-bottom:1rem; color:var(--green);"><i class="fa-solid fa-right-to-bracket"></i> Clock In</div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Bus Registration</label>
+          <select id="ciReg" onchange="fillDriverFromBus('ci')">
+            <option value="">Select Bus</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Driver Name</label>
+          <input id="ciDriver" placeholder="Auto-filled" readonly style="opacity:0.7;">
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Starting Odometer (km)</label>
+          <input type="number" id="ciOdo" placeholder="optional">
+        </div>
+        <div style="background:var(--surface2); border-radius:8px; padding:10px 14px; font-size:0.82rem; color:var(--dim); margin-bottom:0.75rem;">
+          <i class="fa-solid fa-clock" style="color:var(--green); margin-right:6px;"></i>
+          Time: <strong id="ciTimeDisplay" style="color:var(--text);"></strong>
+        </div>
+        <button class="btn btn-success" onclick="clockIn()" style="width:100%;"><i class="fa-solid fa-play"></i> Clock In</button>
+      </div>
+
+      <div class="card" style="border-top:3px solid var(--red);">
+        <div class="card-title" style="margin-bottom:1rem; color:var(--red);"><i class="fa-solid fa-right-from-bracket"></i> Clock Out</div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Bus Registration</label>
+          <select id="coReg" onchange="fillDriverFromBus('co')">
+            <option value="">Select Active Bus</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Driver Name</label>
+          <input id="coDriver" placeholder="Auto-filled" readonly style="opacity:0.7;">
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <label>Ending Odometer (km)</label>
+          <input type="number" id="coOdo" placeholder="optional">
+        </div>
+        <div style="background:var(--surface2); border-radius:8px; padding:10px 14px; font-size:0.82rem; color:var(--dim); margin-bottom:0.75rem;">
+          <i class="fa-solid fa-clock" style="color:var(--red); margin-right:6px;"></i>
+          Time: <strong id="coTimeDisplay" style="color:var(--text);"></strong>
+        </div>
+        <button class="btn btn-danger" onclick="clockOut()" style="width:100%; justify-content:center;"><i class="fa-solid fa-stop"></i> Clock Out</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-satellite-dish" style="color:var(--green)"></i> Currently Active Buses</div>
+        <span id="activeCount" style="font-size:0.82rem; color:var(--green);"></span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Bus</th><th>Driver</th><th>Clock-In Time</th><th>Route</th><th>Fare/Trip (K)</th><th>Status</th></tr></thead>
+          <tbody id="activeShiftsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STATION: TRIP LOG
+  ============================================================ -->
+  <div id="page-trips" class="page">
+    <h2 style="font-family:var(--font-head); font-size:1.6rem; font-weight:900; margin-bottom:0.25rem;">Trip Log</h2>
+    <p style="color:var(--dim); font-size:0.85rem; margin-bottom:1.5rem;">Record of all dispatched and completed trips</p>
+
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-title" style="margin-bottom:1rem;"><i class="fa-solid fa-paper-plane" style="color:var(--cyan)"></i> Dispatch a Bus</div>
+      <div class="form-grid cols-3" style="margin-bottom:0.75rem;">
+        <div class="form-group">
+          <label>Bus Registration</label>
+          <select id="tripReg" onchange="fillTripDetails()">
+            <option value="">Select Bus</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Driver (auto-filled)</label>
+          <input id="tripDriver" placeholder="Auto-filled" readonly style="opacity:0.7;">
+        </div>
+        <div class="form-group">
+          <label>Fare / Trip (K)</label>
+          <input type="number" id="tripFare" placeholder="Amount">
+        </div>
+      </div>
+      <div class="form-grid cols-2" style="margin-bottom:0.75rem;">
+        <div class="form-group">
+          <label>Destination / Route</label>
+          <input id="tripDest" placeholder="e.g. Livingstone">
+        </div>
+        <div class="form-group">
+          <label>Passenger Count</label>
+          <input type="number" id="tripPax" placeholder="e.g. 45">
+        </div>
+      </div>
+      <button class="btn" onclick="logTrip()"><i class="fa-solid fa-paper-plane"></i> Dispatch Bus</button>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem;" id="tripStats"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Trip History</div>
+        <select id="tripFilterBus" onchange="renderTripLog()" style="width:auto; padding:7px 10px; font-size:0.8rem;">
+          <option value="">All Buses</option>
+        </select>
+      </div>
+      <div class="tbl-wrap">
+        <div class="trip-log-row trip-log-head" style="border-radius:8px 8px 0 0;">
+          <span>Date</span><span>Bus &amp; Driver</span><span>Destination</span><span>Pax</span><span>Fare (K)</span><span>Status</span>
+        </div>
+        <div id="tripLogBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STATION: TRIP REQUESTS
+  ============================================================ -->
+  <div id="page-requests" class="page">
+    <h2 style="font-family:var(--font-head); font-size:1.6rem; font-weight:900; margin-bottom:0.25rem;">Trip Requests</h2>
+    <p style="color:var(--dim); font-size:0.85rem; margin-bottom:1.5rem;">Drivers returning from a trip request their next assignment here</p>
+
+    <div class="card" style="border-top:3px solid var(--amber); margin-bottom:1.5rem;">
+      <div class="card-title" style="margin-bottom:0.25rem; color:var(--amber);"><i class="fa-solid fa-hand-point-right"></i> Driver: Request Next Trip</div>
+      <p style="font-size:0.82rem; color:var(--dim); margin-bottom:1rem;">Select your bus and submit — the station desk will approve your next run.</p>
+      <div class="form-grid cols-3" style="margin-bottom:0.75rem;">
+        <div class="form-group">
+          <label>Your Bus Registration</label>
+          <select id="reqReg" onchange="fillReqDriver()">
+            <option value="">Select your bus</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Driver Name</label>
+          <input id="reqDriver" placeholder="Auto-filled" readonly style="opacity:0.7;">
+        </div>
+        <div class="form-group">
+          <label>Preferred Destination</label>
+          <input id="reqDest" placeholder="e.g. Lusaka CBD">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0.75rem;">
+        <label>Notes (optional)</label>
+        <input id="reqNotes" placeholder="e.g. Ready to depart in 20 min, bus needs fuel check">
+      </div>
+      <button class="btn" style="background:var(--amber); color:var(--bg);" onclick="submitTripRequest()"><i class="fa-solid fa-paper-plane"></i> Submit Request</button>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3 style="font-family:var(--font-head); font-size:1rem;">Pending Requests <span id="reqBadgeCount" style="color:var(--amber);"></span></h3>
+    </div>
+    <div id="requestsQueue"></div>
+
+    <div class="card" style="margin-top:1.25rem;">
+      <div class="card-title" style="margin-bottom:1rem;">Request History</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Time</th><th>Bus</th><th>Driver</th><th>Destination</th><th>Decision</th></tr></thead>
+          <tbody id="reqHistoryBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 
 </main>
 </div>
@@ -1347,6 +1772,568 @@ window.addEventListener('storage', () => {
   if (document.querySelector('.page.active')?.id === 'page-lostfound') renderLostTable();
   if (document.querySelector('.page.active')?.id === 'page-p-status') renderPublicBoard();
 });
+
+// ══════════════════════════════════════════════════
+//  FLEET DATA LAYER
+// ══════════════════════════════════════════════════
+const Fleet = {
+  buses()    { return JSON.parse(localStorage.getItem('zast_fleet_buses'))    || []; },
+  shifts()   { return JSON.parse(localStorage.getItem('zast_fleet_shifts'))   || []; },
+  trips()    { return JSON.parse(localStorage.getItem('zast_fleet_trips'))    || []; },
+  requests() { return JSON.parse(localStorage.getItem('zast_fleet_requests')) || []; },
+  saveBuses(d)    { localStorage.setItem('zast_fleet_buses',    JSON.stringify(d)); },
+  saveShifts(d)   { localStorage.setItem('zast_fleet_shifts',   JSON.stringify(d)); },
+  saveTrips(d)    { localStorage.setItem('zast_fleet_trips',    JSON.stringify(d)); },
+  saveRequests(d) { localStorage.setItem('zast_fleet_requests', JSON.stringify(d)); },
+};
+
+// ── HELPERS ──
+function getBus(reg) { return Fleet.buses().find(b => b.reg === reg); }
+function getActiveShift(reg) { return Fleet.shifts().find(s => s.reg === reg && !s.clockOut); }
+
+function populateBusDropdowns() {
+  const buses = Fleet.buses();
+  const activeShifts = Fleet.shifts().filter(s => !s.clockOut);
+  const activeRegs = activeShifts.map(s => s.reg);
+
+  const allOpts = buses.map(b => `<option value="${b.reg}">${b.reg} — ${b.driver}</option>`).join('');
+  const activeOpts = buses.filter(b => activeRegs.includes(b.reg)).map(b => `<option value="${b.reg}">${b.reg} — ${b.driver}</option>`).join('');
+
+  ['ciReg','tripReg','reqReg'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<option value="">Select Bus</option>' + allOpts;
+  });
+  const coReg = document.getElementById('coReg');
+  if (coReg) coReg.innerHTML = '<option value="">Select Active Bus</option>' + activeOpts;
+
+  // Trip filter dropdown
+  const tfb = document.getElementById('tripFilterBus');
+  if (tfb) tfb.innerHTML = '<option value="">All Buses</option>' + allOpts;
+}
+
+function fillDriverFromBus(prefix) {
+  const reg = document.getElementById(prefix + 'Reg')?.value;
+  const bus = getBus(reg);
+  const driverEl = document.getElementById(prefix + 'Driver');
+  if (driverEl) driverEl.value = bus ? bus.driver : '';
+}
+
+function fillTripDetails() {
+  const reg = document.getElementById('tripReg')?.value;
+  const bus = getBus(reg);
+  if (!bus) return;
+  document.getElementById('tripDriver').value = bus.driver;
+  document.getElementById('tripFare').value   = bus.fare;
+  document.getElementById('tripDest').value   = bus.route || '';
+}
+
+function fillReqDriver() {
+  const reg = document.getElementById('reqReg')?.value;
+  const bus = getBus(reg);
+  document.getElementById('reqDriver').value = bus ? bus.driver : '';
+}
+
+// ── REGISTER BUS ──
+function registerBus() {
+  const reg    = document.getElementById('busReg').value.trim().toUpperCase();
+  const carId  = document.getElementById('busCarId').value.trim();
+  const route  = document.getElementById('busRoute').value.trim();
+  const driver = document.getElementById('busDriver').value.trim();
+  const phone  = document.getElementById('busDriverPhone').value.trim();
+  const fare   = parseFloat(document.getElementById('busFare').value) || 0;
+
+  if (!reg || !driver || !fare) return showToast('Please enter registration, driver name, and fare.', 'amber');
+
+  const buses = Fleet.buses();
+  if (buses.find(b => b.reg === reg)) return showToast('Bus ' + reg + ' is already registered.', 'amber');
+
+  buses.push({ reg, carId, route, driver, phone, fare, status: 'off', registeredAt: Date.now() });
+  Fleet.saveBuses(buses);
+  logActivity('Bus ' + reg + ' registered — Driver: ' + driver + ', Fare: K' + fare, 'cyan');
+  showToast('Bus ' + reg + ' registered!', 'green');
+
+  ['busReg','busCarId','busRoute','busDriver','busDriverPhone','busFare'].forEach(id => { document.getElementById(id).value = ''; });
+  renderFleet();
+  renderFleetStats();
+  renderDriverGrid();
+  populateBusDropdowns();
+  updateCounts();
+}
+
+// ── FLEET VIEW ──
+function renderFleetStats() {
+  const buses = Fleet.buses();
+  const active = buses.filter(b => b.status === 'on' || b.status === 'trip').length;
+  const trips  = Fleet.trips().length;
+  const earned = Fleet.trips().reduce((s, t) => s + (parseFloat(t.fare)||0), 0);
+  document.getElementById('fleetStats').innerHTML = `
+    <div class="stat-card" style="--accent:var(--cyan)">
+      <div class="stat-icon" style="color:var(--cyan)"><i class="fa-solid fa-bus"></i></div>
+      <div class="stat-val" style="color:var(--cyan)">${buses.length}</div>
+      <div class="stat-lbl">Total Buses</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--green)">
+      <div class="stat-icon" style="color:var(--green)"><i class="fa-solid fa-circle-dot"></i></div>
+      <div class="stat-val" style="color:var(--green)">${active}</div>
+      <div class="stat-lbl">Active Now</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--amber)">
+      <div class="stat-icon" style="color:var(--amber)"><i class="fa-solid fa-coins"></i></div>
+      <div class="stat-val" style="color:var(--amber)">${trips}</div>
+      <div class="stat-lbl">Total Trips Logged</div>
+    </div>
+  `;
+}
+
+function renderDriverGrid() {
+  const buses = Fleet.buses();
+  const trips = Fleet.trips();
+  const drivers = {};
+  buses.forEach(b => {
+    if (!drivers[b.driver]) drivers[b.driver] = { name: b.driver, phone: b.phone, buses: [], trips: 0, earned: 0 };
+    drivers[b.driver].buses.push(b.reg);
+  });
+  trips.forEach(t => {
+    if (drivers[t.driver]) {
+      drivers[t.driver].trips++;
+      drivers[t.driver].earned += parseFloat(t.fare) || 0;
+    }
+  });
+
+  const list = Object.values(drivers);
+  document.getElementById('driverCount').textContent = list.length + ' driver(s) registered';
+  document.getElementById('driverGrid').innerHTML = list.length ? list.map(d => `
+    <div class="driver-card">
+      <div class="driver-avatar">${d.name.substring(0,2).toUpperCase()}</div>
+      <div class="driver-info">
+        <div class="driver-name">${d.name}</div>
+        <div class="driver-sub">${d.phone || 'No phone'} &nbsp;·&nbsp; Buses: ${d.buses.join(', ')}</div>
+      </div>
+      <div class="driver-stats">
+        <strong>${d.trips}</strong> trips
+      </div>
+    </div>
+  `).join('') : '<p style="color:var(--muted); font-size:0.85rem;">No drivers registered yet.</p>';
+}
+
+function renderFleet() {
+  const filter = document.getElementById('fleetFilter')?.value || '';
+  let buses = Fleet.buses();
+  if (filter) buses = buses.filter(b => b.status === filter);
+
+  document.getElementById('fleetGrid').innerHTML = buses.length ? buses.map(b => {
+    const statusClass = { on:'bus-status-on', off:'bus-status-off', trip:'bus-status-trip', req:'bus-status-req' }[b.status] || 'bus-status-off';
+    const pillClass   = { on:'pill-on', off:'pill-off', trip:'pill-trip', req:'pill-req' }[b.status] || 'pill-off';
+    const pillLabel   = { on:'Clocked In', off:'Clocked Out', trip:'On Trip', req:'Req Pending' }[b.status] || 'Off';
+    const shift = getActiveShift(b.reg);
+    return `
+      <div class="bus-card ${statusClass}">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div class="bus-reg">${b.reg}</div>
+          <span class="status-pill ${pillClass}">${pillLabel}</span>
+        </div>
+        <div class="bus-driver"><i class="fa-solid fa-user-tie" style="font-size:0.75rem;"></i>${b.driver}</div>
+        <div class="bus-meta-row">
+          <span>ID: <strong>${b.carId || '—'}</strong></span>
+          <span>Route: <strong>${b.route || '—'}</strong></span>
+        </div>
+        <div class="bus-meta-row" style="border-top:none; margin-top:0; padding-top:0;">
+          <span>Fare: <strong style="color:var(--amber)">K${b.fare}</strong>/trip</span>
+          ${shift ? '<span style="color:var(--green); font-size:0.75rem;"><i class="fa-solid fa-clock"></i> Since ' + shift.clockIn + '</span>' : ''}
+        </div>
+        <div style="display:flex; gap:6px; margin-top:8px;">
+          ${b.status === 'off' ? '<button class="btn btn-success btn-sm" onclick="quickClockIn(\''+b.reg+'\')"><i class="fa-solid fa-play"></i> Clock In</button>' : ''}
+          ${b.status === 'on'  ? '<button class="btn btn-danger  btn-sm" onclick="quickClockOut(\''+b.reg+'\')"><i class="fa-solid fa-stop"></i> Clock Out</button>' : ''}
+          <button class="btn btn-outline btn-sm" onclick="deleteBus(\''+b.reg+'\')"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>`;
+  }).join('') : '<p style="color:var(--muted); font-size:0.85rem;">No buses registered yet.</p>';
+}
+
+function deleteBus(reg) {
+  if (!confirm('Remove bus ' + reg + ' from the fleet?')) return;
+  Fleet.saveBuses(Fleet.buses().filter(b => b.reg !== reg));
+  renderFleet(); renderFleetStats(); renderDriverGrid(); populateBusDropdowns(); updateCounts();
+  showToast('Bus ' + reg + ' removed.', 'cyan');
+}
+
+// ── CLOCK IN / OUT ──
+function updateDispatchClocks() {
+  const now = new Date().toLocaleTimeString();
+  const ci = document.getElementById('ciTimeDisplay');
+  const co = document.getElementById('coTimeDisplay');
+  if (ci) ci.textContent = now;
+  if (co) co.textContent = now;
+}
+setInterval(updateDispatchClocks, 1000);
+
+function clockIn() {
+  const reg    = document.getElementById('ciReg')?.value;
+  const driver = document.getElementById('ciDriver')?.value;
+  const odo    = document.getElementById('ciOdo')?.value;
+  if (!reg || !driver) return showToast('Select a bus to clock in.', 'amber');
+  if (getActiveShift(reg)) return showToast(reg + ' is already clocked in.', 'amber');
+
+  const now = new Date();
+  const shifts = Fleet.shifts();
+  shifts.push({ id: 'SHF-' + Date.now(), reg, driver, clockIn: now.toLocaleTimeString(), clockInDate: now.toLocaleDateString('en-GB'), odometerIn: odo || null, clockOut: null, ts: Date.now() });
+  Fleet.saveShifts(shifts);
+
+  // Update bus status
+  const buses = Fleet.buses();
+  const idx = buses.findIndex(b => b.reg === reg);
+  if (idx !== -1) { buses[idx].status = 'on'; Fleet.saveBuses(buses); }
+
+  logActivity('Bus ' + reg + ' clocked in — Driver: ' + driver, 'green');
+  showToast(reg + ' clocked in at ' + now.toLocaleTimeString(), 'green');
+  document.getElementById('ciReg').value = '';
+  document.getElementById('ciDriver').value = '';
+  document.getElementById('ciOdo').value = '';
+  renderActiveShifts(); renderFleet(); populateBusDropdowns(); updateCounts();
+}
+
+function clockOut() {
+  const reg    = document.getElementById('coReg')?.value;
+  const driver = document.getElementById('coDriver')?.value;
+  const odo    = document.getElementById('coOdo')?.value;
+  if (!reg) return showToast('Select a bus to clock out.', 'amber');
+
+  const shifts = Fleet.shifts();
+  const idx = shifts.findIndex(s => s.reg === reg && !s.clockOut);
+  if (idx === -1) return showToast(reg + ' has no active shift.', 'amber');
+
+  const now = new Date();
+  shifts[idx].clockOut = now.toLocaleTimeString();
+  shifts[idx].odometerOut = odo || null;
+  const inTs = shifts[idx].ts;
+  const diffMs = Date.now() - inTs;
+  const hrs = Math.floor(diffMs / 3600000);
+  const mins = Math.floor((diffMs % 3600000) / 60000);
+  shifts[idx].duration = hrs + 'h ' + mins + 'm';
+  Fleet.saveShifts(shifts);
+
+  const buses = Fleet.buses();
+  const bidx = buses.findIndex(b => b.reg === reg);
+  if (bidx !== -1) { buses[bidx].status = 'off'; Fleet.saveBuses(buses); }
+
+  logActivity('Bus ' + reg + ' clocked out — Duration: ' + shifts[idx].duration, 'amber');
+  showToast(reg + ' clocked out. Shift: ' + shifts[idx].duration, 'amber');
+  document.getElementById('coReg').value = '';
+  document.getElementById('coDriver').value = '';
+  document.getElementById('coOdo').value = '';
+  renderActiveShifts(); renderFleet(); populateBusDropdowns(); updateCounts();
+}
+
+function quickClockIn(reg) {
+  const bus = getBus(reg);
+  if (!bus) return;
+  if (getActiveShift(reg)) return showToast(reg + ' is already clocked in.', 'amber');
+  const now = new Date();
+  const shifts = Fleet.shifts();
+  shifts.push({ id: 'SHF-' + Date.now(), reg, driver: bus.driver, clockIn: now.toLocaleTimeString(), clockInDate: now.toLocaleDateString('en-GB'), clockOut: null, ts: Date.now() });
+  Fleet.saveShifts(shifts);
+  const buses = Fleet.buses();
+  const idx = buses.findIndex(b => b.reg === reg);
+  if (idx !== -1) { buses[idx].status = 'on'; Fleet.saveBuses(buses); }
+  logActivity('Bus ' + reg + ' clocked in (quick) — Driver: ' + bus.driver, 'green');
+  showToast(reg + ' clocked in!', 'green');
+  renderFleet(); renderActiveShifts(); populateBusDropdowns(); updateCounts();
+}
+
+function quickClockOut(reg) {
+  const shifts = Fleet.shifts();
+  const idx = shifts.findIndex(s => s.reg === reg && !s.clockOut);
+  if (idx === -1) return;
+  const now = new Date();
+  shifts[idx].clockOut = now.toLocaleTimeString();
+  const diffMs = Date.now() - shifts[idx].ts;
+  shifts[idx].duration = Math.floor(diffMs / 3600000) + 'h ' + Math.floor((diffMs % 3600000) / 60000) + 'm';
+  Fleet.saveShifts(shifts);
+  const buses = Fleet.buses();
+  const bidx = buses.findIndex(b => b.reg === reg);
+  if (bidx !== -1) { buses[bidx].status = 'off'; Fleet.saveBuses(buses); }
+  logActivity('Bus ' + reg + ' clocked out — Duration: ' + shifts[idx].duration, 'amber');
+  showToast(reg + ' clocked out.', 'amber');
+  renderFleet(); renderActiveShifts(); populateBusDropdowns(); updateCounts();
+}
+
+function renderActiveShifts() {
+  const shifts = Fleet.shifts().filter(s => !s.clockOut);
+  const body = document.getElementById('activeShiftsBody');
+  if (!body) return;
+  const countEl = document.getElementById('activeCount');
+  if (countEl) countEl.textContent = shifts.length + ' bus(es) active';
+  body.innerHTML = shifts.length ? shifts.map(s => {
+    const bus = getBus(s.reg) || {};
+    return `<tr>
+      <td><strong>${s.reg}</strong></td>
+      <td>${s.driver}</td>
+      <td style="color:var(--green);">${s.clockIn}</td>
+      <td style="color:var(--dim); font-size:0.8rem;">${bus.route || '—'}</td>
+      <td style="color:var(--amber);">K${bus.fare || '—'}</td>
+      <td><span class="status-pill pill-on">Active</span></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="6" style="text-align:center; color:var(--muted); padding:2rem;">No buses currently clocked in.</td></tr>';
+}
+
+// ── TRIP LOG ──
+function logTrip() {
+  const reg    = document.getElementById('tripReg')?.value;
+  const driver = document.getElementById('tripDriver')?.value;
+  const fare   = parseFloat(document.getElementById('tripFare')?.value) || 0;
+  const dest   = document.getElementById('tripDest')?.value.trim();
+  const pax    = parseInt(document.getElementById('tripPax')?.value) || 0;
+  if (!reg || !dest) return showToast('Select a bus and enter a destination.', 'amber');
+
+  const now = new Date();
+  const trips = Fleet.trips();
+  trips.push({ id: 'TRP-' + Date.now(), reg, driver, fare, dest, pax, date: now.toLocaleDateString('en-GB'), time: now.toLocaleTimeString(), status: 'Departed', ts: Date.now() });
+  Fleet.saveTrips(trips);
+
+  const buses = Fleet.buses();
+  const idx = buses.findIndex(b => b.reg === reg);
+  if (idx !== -1) { buses[idx].status = 'trip'; Fleet.saveBuses(buses); }
+
+  logActivity('Bus ' + reg + ' dispatched to ' + dest + ' — Driver: ' + driver + ', Fare: K' + fare, 'cyan');
+  showToast(reg + ' dispatched to ' + dest + '!', 'green');
+  document.getElementById('tripReg').value = '';
+  document.getElementById('tripDriver').value = '';
+  document.getElementById('tripFare').value = '';
+  document.getElementById('tripDest').value = '';
+  document.getElementById('tripPax').value = '';
+  renderTripLog(); renderFleet(); populateBusDropdowns(); updateCounts();
+}
+
+function renderTripStats() {
+  const trips = Fleet.trips();
+  const today = new Date().toLocaleDateString('en-GB');
+  const todayTrips = trips.filter(t => t.date === today);
+  const totalEarned = trips.reduce((s, t) => s + (parseFloat(t.fare)||0), 0);
+  const todayEarned = todayTrips.reduce((s, t) => s + (parseFloat(t.fare)||0), 0);
+  const el = document.getElementById('tripStats');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="stat-card" style="--accent:var(--cyan)">
+      <div class="stat-icon" style="color:var(--cyan)"><i class="fa-solid fa-route"></i></div>
+      <div class="stat-val" style="color:var(--cyan)">${trips.length}</div>
+      <div class="stat-lbl">Total Trips</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--green)">
+      <div class="stat-icon" style="color:var(--green)"><i class="fa-solid fa-calendar-day"></i></div>
+      <div class="stat-val" style="color:var(--green)">${todayTrips.length}</div>
+      <div class="stat-lbl">Trips Today</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--amber)">
+      <div class="stat-icon" style="color:var(--amber)"><i class="fa-solid fa-money-bill-wave"></i></div>
+      <div class="stat-val" style="color:var(--amber)">K${totalEarned.toLocaleString()}</div>
+      <div class="stat-lbl">Total Revenue</div>
+    </div>
+  `;
+}
+
+function renderTripLog() {
+  const filter = document.getElementById('tripFilterBus')?.value || '';
+  let trips = Fleet.trips();
+  if (filter) trips = trips.filter(t => t.reg === filter);
+  trips.sort((a, b) => b.ts - a.ts);
+
+  renderTripStats();
+  document.getElementById('tripLogBody').innerHTML = trips.length ? trips.map(t => {
+    const statusClass = t.status === 'Completed' ? 'badge-found' : 'badge-matched';
+    return `<div class="trip-log-row">
+      <span style="color:var(--dim); font-size:0.78rem;">${t.date}</span>
+      <span><strong>${t.reg}</strong><br><small style="color:var(--dim)">${t.driver}</small></span>
+      <span>${t.dest}</span>
+      <span style="color:var(--dim);">${t.pax || '—'}</span>
+      <span style="color:var(--amber); font-weight:600;">K${t.fare}</span>
+      <span>
+        <span class="badge ${statusClass}" style="font-size:0.7rem;">${t.status}</span>
+        ${t.status !== 'Completed' ? '<button class="btn btn-sm" style="margin-top:4px; padding:3px 8px; font-size:0.7rem;" onclick="completeTrip(\''+t.id+'\')">Complete</button>' : ''}
+      </span>
+    </div>`;
+  }).join('') : '<div style="text-align:center; color:var(--muted); padding:2rem; font-size:0.85rem;">No trips logged yet.</div>';
+}
+
+function completeTrip(id) {
+  const trips = Fleet.trips();
+  const idx = trips.findIndex(t => t.id === id);
+  if (idx === -1) return;
+  trips[idx].status = 'Completed';
+  Fleet.saveTrips(trips);
+  // Bus back to 'on' (back at station) if shift still active
+  const bus = Fleet.buses();
+  const bidx = bus.findIndex(b => b.reg === trips[idx].reg);
+  if (bidx !== -1 && bus[bidx].status === 'trip') { bus[bidx].status = 'on'; Fleet.saveBuses(bus); }
+  logActivity('Trip ' + id + ' completed — Bus ' + trips[idx].reg, 'green');
+  showToast('Trip marked as completed.', 'green');
+  renderTripLog(); renderFleet(); populateBusDropdowns();
+}
+
+// ── TRIP REQUESTS ──
+function submitTripRequest() {
+  const reg    = document.getElementById('reqReg')?.value;
+  const driver = document.getElementById('reqDriver')?.value;
+  const dest   = document.getElementById('reqDest')?.value.trim();
+  const notes  = document.getElementById('reqNotes')?.value.trim();
+  if (!reg || !driver) return showToast('Please select your bus.', 'amber');
+
+  const reqs = Fleet.requests();
+  const now  = new Date();
+  reqs.push({ id: 'REQ-' + Date.now(), reg, driver, dest, notes, time: now.toLocaleTimeString(), date: now.toLocaleDateString('en-GB'), status: 'Pending', ts: Date.now() });
+  Fleet.saveRequests(reqs);
+
+  const buses = Fleet.buses();
+  const idx = buses.findIndex(b => b.reg === reg);
+  if (idx !== -1) { buses[idx].status = 'req'; Fleet.saveBuses(buses); }
+
+  logActivity('Trip request from Driver ' + driver + ' (' + reg + ') to ' + (dest || 'unspecified'), 'amber');
+  showToast('Trip request submitted! Wait for approval.', 'green');
+  document.getElementById('reqReg').value = '';
+  document.getElementById('reqDriver').value = '';
+  document.getElementById('reqDest').value = '';
+  document.getElementById('reqNotes').value = '';
+  renderRequestsQueue(); renderFleet(); updateCounts();
+}
+
+function approveRequest(id) {
+  const reqs = Fleet.requests();
+  const idx  = reqs.findIndex(r => r.id === id);
+  if (idx === -1) return;
+  reqs[idx].status = 'Approved';
+  Fleet.saveRequests(reqs);
+
+  const buses = Fleet.buses();
+  const bidx = buses.findIndex(b => b.reg === reqs[idx].reg);
+  if (bidx !== -1) { buses[bidx].status = 'on'; Fleet.saveBuses(buses); }
+
+  logActivity('Trip request APPROVED — ' + reqs[idx].reg + ' (' + reqs[idx].driver + ')', 'green');
+  showToast(reqs[idx].reg + ' request approved!', 'green');
+  renderRequestsQueue(); renderFleet(); populateBusDropdowns(); updateCounts();
+}
+
+function rejectRequest(id) {
+  const reqs = Fleet.requests();
+  const idx  = reqs.findIndex(r => r.id === id);
+  if (idx === -1) return;
+  reqs[idx].status = 'Rejected';
+  Fleet.saveRequests(reqs);
+
+  const buses = Fleet.buses();
+  const bidx = buses.findIndex(b => b.reg === reqs[idx].reg);
+  if (bidx !== -1) { buses[bidx].status = 'on'; Fleet.saveBuses(buses); }
+
+  logActivity('Trip request REJECTED — ' + reqs[idx].reg, 'amber');
+  showToast('Request rejected.', 'amber');
+  renderRequestsQueue(); renderFleet(); updateCounts();
+}
+
+function renderRequestsQueue() {
+  const reqs = Fleet.requests().filter(r => r.status === 'Pending');
+  const all  = Fleet.requests().filter(r => r.status !== 'Pending');
+  const badge = document.getElementById('reqBadgeCount');
+  if (badge) badge.textContent = reqs.length ? '(' + reqs.length + ')' : '';
+
+  document.getElementById('requestsQueue').innerHTML = reqs.length ? reqs.map(r => `
+    <div class="req-card">
+      <div class="req-info">
+        <div class="req-title"><i class="fa-solid fa-bus" style="color:var(--amber); margin-right:6px;"></i>${r.reg} — ${r.driver}</div>
+        <div class="req-sub">
+          ${r.dest ? 'Destination: <strong style="color:var(--text)">' + r.dest + '</strong> &nbsp;·&nbsp;' : ''}
+          Submitted at ${r.time}
+          ${r.notes ? '<br><em>' + r.notes + '</em>' : ''}
+        </div>
+      </div>
+      <div class="req-actions">
+        <button class="btn btn-success btn-sm" onclick="approveRequest('${r.id}')"><i class="fa-solid fa-check"></i> Approve</button>
+        <button class="btn btn-danger  btn-sm" onclick="rejectRequest('${r.id}')"><i class="fa-solid fa-xmark"></i> Reject</button>
+      </div>
+    </div>
+  `).join('') : '<p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem;">No pending requests.</p>';
+
+  const histBody = document.getElementById('reqHistoryBody');
+  if (histBody) {
+    histBody.innerHTML = all.sort((a,b) => b.ts - a.ts).map(r => {
+      const col = r.status === 'Approved' ? 'var(--green)' : 'var(--red)';
+      return `<tr>
+        <td style="color:var(--dim); font-size:0.8rem;">${r.time}</td>
+        <td><strong>${r.reg}</strong></td>
+        <td>${r.driver}</td>
+        <td>${r.dest || '—'}</td>
+        <td style="color:${col}; font-weight:700;">${r.status}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="5" style="text-align:center; color:var(--muted); padding:1rem;">No history yet.</td></tr>';
+  }
+
+  // Update counts
+  const cnt = document.getElementById('cnt-req');
+  if (cnt) cnt.textContent = reqs.length || '0';
+}
+
+// ── UPDATE COUNTS (extend existing) ──
+const _origUpdateCounts = updateCounts;
+function updateCounts() {
+  _origUpdateCounts();
+  const buses = Fleet.buses();
+  const reqs  = Fleet.requests().filter(r => r.status === 'Pending');
+  const trips = Fleet.trips();
+  const cntFleet = document.getElementById('cnt-fleet');
+  const cntTrips = document.getElementById('cnt-trips');
+  const cntReq   = document.getElementById('cnt-req');
+  if (cntFleet) cntFleet.textContent = buses.length;
+  if (cntTrips) cntTrips.textContent = trips.length;
+  if (cntReq)   cntReq.textContent   = reqs.length || '0';
+}
+
+// ── EXTEND showPage for fleet pages ──
+const _origShowPage = showPage;
+function showPage(id, el, portal) {
+  _origShowPage(id, el, portal);
+  if (id === 'fleet')    { renderFleet(); renderFleetStats(); renderDriverGrid(); populateBusDropdowns(); }
+  if (id === 'dispatch') { renderActiveShifts(); populateBusDropdowns(); updateDispatchClocks(); }
+  if (id === 'trips')    { renderTripLog(); populateBusDropdowns(); }
+  if (id === 'requests') { renderRequestsQueue(); populateBusDropdowns(); }
+}
+
+// ── DASHBOARD: add fleet summary ──
+const _origRefreshDashboard = refreshDashboard;
+function refreshDashboard() {
+  _origRefreshDashboard();
+  const buses  = Fleet.buses();
+  const active = buses.filter(b => b.status === 'on' || b.status === 'trip').length;
+  const trips  = Fleet.trips().filter(t => t.date === new Date().toLocaleDateString('en-GB')).length;
+  // Append to stats row
+  let row = document.getElementById('statsRow');
+  let existing = document.getElementById('s-buses-card');
+  if (!existing && row) {
+    row.insertAdjacentHTML('beforeend', `
+      <div class="stat-card" id="s-buses-card" style="--accent:var(--purple)">
+        <div class="stat-icon" style="color:var(--purple)"><i class="fa-solid fa-bus"></i></div>
+        <div class="stat-val" id="s-buses" style="color:var(--purple)">${active}</div>
+        <div class="stat-lbl">Buses Active Now</div>
+      </div>
+      <div class="stat-card" style="--accent:var(--amber)">
+        <div class="stat-icon" style="color:var(--amber)"><i class="fa-solid fa-route"></i></div>
+        <div class="stat-val" id="s-todaytrips" style="color:var(--amber)">${trips}</div>
+        <div class="stat-lbl">Trips Today</div>
+      </div>
+    `);
+  } else if (existing) {
+    document.getElementById('s-buses').textContent = active;
+    document.getElementById('s-todaytrips').textContent = trips;
+  }
+}
+
+// Init fleet on load
+const _origOnload = window.onload;
+window.onload = () => {
+  _origOnload();
+  populateBusDropdowns();
+  renderFleet();
+  renderActiveShifts();
+  renderRequestsQueue();
+  updateCounts();
+};
+
 </script>
 </body>
 </html>
