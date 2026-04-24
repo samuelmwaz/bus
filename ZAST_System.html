@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZAST | Bus Station Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+  --bg: #080b12;
+  --surface: #0d1117;
+  --surface2: #161b27;
+  --cyan: #00e5ff;
+  --cyan-dim: rgba(0,229,255,0.08);
+  --cyan-glow: rgba(0,229,255,0.25);
+  --amber: #ffb700;
+  --green: #00e676;
+  --red: #ff3d3d;
+  --purple: #a78bfa;
+  --text: #f0f4ff;
+  --muted: #4a5568;
+  --dim: #8892a4;
+  --border: rgba(255,255,255,0.07);
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 60px;
+}
+.logo {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--cyan);
+  letter-spacing: -0.5px;
+  margin-right: 2.5rem;
+  text-shadow: 0 0 20px var(--cyan-glow);
+}
+.portal-tabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+}
+.portal-tab {
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--dim);
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.portal-tab:hover { background: var(--surface2); color: var(--text); }
+.portal-tab.active { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(0,229,255,0.2); }
+.portal-tab .badge-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--red); display: none;
+  animation: pulse 1.5s infinite;
+}
+.portal-tab .badge-dot.show { display: block; }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--green);
+  background: rgba(0,230,118,0.1);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(0,230,118,0.2);
+}
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; }
+  50% { opacity:0.3; }
+}
+
+/* ── LAYOUT ── */
+.app-body {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  height: calc(100vh - 60px);
+}
+
+aside {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 1.5rem 1rem;
+  overflow-y: auto;
+}
+.aside-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 0.75rem;
+  margin-bottom: 8px;
+  margin-top: 1.5rem;
+}
+.aside-label:first-child { margin-top: 0; }
+
+nav li {
+  list-style: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+}
+nav li:hover { background: var(--surface2); color: var(--text); }
+nav li.active { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(0,229,255,0.15); }
+nav li .count {
+  margin-left: auto;
+  background: rgba(255,255,255,0.08);
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+}
+nav li.active .count { background: var(--cyan-glow); color: var(--cyan); }
+
+/* ── MAIN CONTENT ── */
+main {
+  overflow-y: auto;
+  padding: 2rem 2.5rem;
+}
+
+.page { display: none; }
+.page.active { display: block; animation: fadeUp 0.25s ease; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background: var(--accent, var(--cyan));
+}
+.stat-card .stat-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(255,255,255,0.05);
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+.stat-card .stat-val {
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent, var(--cyan));
+}
+.stat-card .stat-lbl {
+  font-size: 0.78rem;
+  color: var(--dim);
+  margin-top: 4px;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+.card-title {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.card-sub { font-size: 0.8rem; color: var(--dim); margin-top: 2px; }
+
+/* ── FORM ELEMENTS ── */
+.form-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+.form-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr auto; }
+
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+label { font-size: 0.78rem; font-weight: 500; color: var(--dim); }
+input, textarea, select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: rgba(0,229,255,0.4);
+}
+textarea { resize: vertical; min-height: 80px; }
+select option { background: var(--surface); }
+
+.btn {
+  background: var(--cyan);
+  color: var(--bg);
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.btn:hover { opacity: 0.85; transform: translateY(-1px); }
+.btn-outline {
+  background: transparent;
+  color: var(--cyan);
+  border: 1px solid rgba(0,229,255,0.3);
+}
+.btn-outline:hover { background: var(--cyan-dim); }
+.btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+.btn-success { background: var(--green); }
+.btn-danger { background: rgba(255,61,61,0.15); color: var(--red); border: 1px solid rgba(255,61,61,0.3); }
+.btn-amber { background: rgba(255,183,0,0.15); color: var(--amber); border: 1px solid rgba(255,183,0,0.3); }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+th {
+  text-align: left; padding: 10px 14px;
+  color: var(--dim); font-weight: 600; font-size: 0.75rem;
+  letter-spacing: 0.5px; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+td { padding: 14px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ── BADGES ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.3px;
+}
+.badge-found { background: rgba(0,230,118,0.1); color: var(--green); border: 1px solid rgba(0,230,118,0.2); }
+.badge-reported { background: rgba(255,183,0,0.1); color: var(--amber); border: 1px solid rgba(255,183,0,0.2); }
+.badge-claimed { background: rgba(167,139,250,0.1); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+.badge-searching { background: rgba(255,61,61,0.1); color: var(--red); border: 1px solid rgba(255,61,61,0.2); }
+.badge-matched { background: rgba(0,229,255,0.1); color: var(--cyan); border: 1px solid rgba(0,229,255,0.2); }
+
+/* ── MATCH ALERT ── */
+.match-banner {
+  background: linear-gradient(135deg, rgba(0,229,255,0.08), rgba(0,230,118,0.05));
+  border: 1px solid rgba(0,229,255,0.3);
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  animation: fadeUp 0.3s ease;
+}
+.match-icon { font-size: 1.5rem; }
+.match-text h4 { font-family: var(--font-head); color: var(--cyan); margin-bottom: 4px; }
+.match-text p { font-size: 0.82rem; color: var(--dim); }
+
+/* ── NOTIFICATION TOAST ── */
+#toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 999;
+  display: flex; align-items: center; gap: 10px;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+  max-width: 320px;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast.green { border-left-color: var(--green); }
+#toast.amber { border-left-color: var(--amber); }
+
+/* ── PROJECT CARDS ── */
+.project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.proj-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  transition: border-color 0.2s;
+}
+.proj-card:hover { border-color: rgba(0,229,255,0.2); }
+.proj-name { font-family: var(--font-head); font-weight: 700; margin-bottom: 4px; }
+.proj-meta { font-size: 0.78rem; color: var(--dim); margin-bottom: 1rem; }
+.progress-track {
+  background: rgba(255,255,255,0.06);
+  height: 8px; border-radius: 4px;
+  overflow: hidden; margin: 10px 0;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--cyan), #00b4d8);
+  transition: width 0.6s ease;
+}
+.progress-fill.complete { background: linear-gradient(90deg, var(--green), #00b4d8); }
+.proj-amounts { display: flex; justify-content: space-between; font-size: 0.8rem; }
+.proj-amounts .raised { color: var(--cyan); font-weight: 600; }
+.proj-amounts .goal { color: var(--dim); }
+
+/* ── SEARCH BAR ── */
+.search-bar {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+.search-bar i {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: 0.9rem;
+}
+.search-bar input {
+  padding-left: 36px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+}
+
+/* ── ACTIVITY LOG ── */
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.activity-item:last-child { border: none; }
+.activity-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--cyan);
+  margin-top: 5px; flex-shrink: 0;
+}
+.activity-dot.green { background: var(--green); }
+.activity-dot.amber { background: var(--amber); }
+.activity-time { font-size: 0.72rem; color: var(--muted); }
+.activity-text { font-size: 0.82rem; line-height: 1.5; }
+.activity-text strong { color: var(--text); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 480px;
+  transform: scale(0.95);
+  transition: transform 0.2s;
+}
+.modal-overlay.open .modal { transform: scale(1); }
+.modal-title {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 1.25rem;
+  color: var(--cyan);
+}
+.modal-actions { display: flex; gap: 10px; margin-top: 1.25rem; }
+.modal-actions .btn { flex: 1; justify-content: center; }
+.btn-cancel { background: var(--surface2); color: var(--dim); border: 1px solid var(--border); }
+
+/* ── PRINT VIEW ── */
+@media print {
+  .topbar, aside, .btn, .portal-tabs, .search-bar { display:none !important; }
+  body { background: white; color: black; }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  body { grid-template-rows: auto 1fr; }
+  .app-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  aside { display: flex; flex-wrap: wrap; gap: 6px; padding: 0.75rem; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+  .aside-label { display: none; }
+  nav li { font-size: 0.75rem; padding: 8px 10px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .form-grid.cols-4 { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">ZAST</div>
+  <div class="portal-tabs">
+    <button class="portal-tab active" onclick="switchPortal('station', this)">
+      <i class="fa-solid fa-building"></i> Station Desk
+    </button>
+    <button class="portal-tab" onclick="switchPortal('passenger', this)">
+      <i class="fa-solid fa-person-walking-luggage"></i> Passenger Portal
+      <span class="badge-dot" id="passengerDot"></span>
+    </button>
+  </div>
+  <div class="topbar-right">
+    <div class="live-badge"><span class="live-dot"></span>Live Sync</div>
+    <span id="clockDisplay" style="font-size:0.78rem; color:var(--dim);"></span>
+  </div>
+</div>
+
+<div class="app-body">
+
+<!-- ── SIDEBAR ── -->
+<aside id="sidebar">
+  <!-- Station sidebar -->
+  <div id="station-nav">
+    <div class="aside-label">Operations</div>
+    <nav><ul>
+      <li class="active" onclick="showPage('dashboard', this, 'station')">
+        <i class="fa-solid fa-chart-line"></i> Dashboard <span class="count" id="cnt-dash">—</span>
+      </li>
+      <li onclick="showPage('lostfound', this, 'station')">
+        <i class="fa-solid fa-box-archive"></i> Lost & Found <span class="count" id="cnt-lf">0</span>
+      </li>
+    </ul></nav>
+    <div class="aside-label">Infrastructure</div>
+    <nav><ul>
+      <li onclick="showPage('maintenance', this, 'station')">
+        <i class="fa-solid fa-trowel-bricks"></i> Maintenance <span class="count" id="cnt-proj">0</span>
+      </li>
+      <li onclick="showPage('activity', this, 'station')">
+        <i class="fa-solid fa-clock-rotate-left"></i> Activity Log
+      </li>
+    </ul></nav>
+  </div>
+
+  <!-- Passenger sidebar -->
+  <div id="passenger-nav" style="display:none;">
+    <div class="aside-label">My Lost Item</div>
+    <nav><ul>
+      <li class="active" onclick="showPage('p-report', this, 'passenger')">
+        <i class="fa-solid fa-file-pen"></i> File a Report
+      </li>
+      <li onclick="showPage('p-status', this, 'passenger')">
+        <i class="fa-solid fa-magnifying-glass"></i> Check Status
+      </li>
+    </ul></nav>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main id="main-content">
+
+  <!-- ============================================================
+       STATION: DASHBOARD
+  ============================================================ -->
+  <div id="page-dashboard" class="page active">
+    <h2 style="font-family:var(--font-head); font-size:1.6rem; font-weight:900; margin-bottom:0.25rem;">Station Dashboard</h2>
+    <p style="color:var(--dim); font-size:0.85rem; margin-bottom:1.5rem;">Overview of today's operations</p>
+
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card" style="--accent:var(--amber)">
+        <div class="stat-icon" style="color:var(--amber)"><i class="fa-solid fa-box"></i></div>
+        <div class="stat-val" id="s-unclaimed">0</div>
+        <div class="stat-lbl">Unclaimed Found Items</div>
+      </div>
+      <div class="stat-card" style="--accent:var(--red)">
+        <div class="stat-icon" style="color:var(--red)"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="stat-val" id="s-reports">0</div>
+        <div class="stat-lbl">Open Passenger Reports</div>
+      </div>
+      <div class="stat-card" style="--accent:var(--cyan)">
+        <div class="stat-icon" style="color:var(--cyan)"><i class="fa-solid fa-link"></i></div>
+        <div class="stat-val" id="s-matches">0</div>
+        <div class="stat-lbl">Potential Matches</div>
+      </div>
+      <div class="stat-card" style="--accent:var(--green)">
+        <div class="stat-icon" style="color:var(--green)"><i class="fa-solid fa-check-double"></i></div>
+        <div class="stat-val" id="s-resolved">0</div>
+        <div class="stat-lbl">Resolved Today</div>
+      </div>
+    </div>
+
+    <!-- Potential Matches -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--cyan)"></i> Auto-Match Suggestions</div>
+          <div class="card-sub">Items found by drivers that may match passenger reports</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="runAutoMatch()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      </div>
+      <div id="matchContainer"><p style="color:var(--muted); font-size:0.85rem;">No matches to display.</p></div>
+    </div>
+
+    <!-- Recent activity snippet -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Recent Activity</div>
+        <button class="btn btn-outline btn-sm" onclick="showPage('activity', null, 'station')">View All</button>
+      </div>
+      <div id="dashRecentActivity"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STATION: LOST & FOUND
+  ============================================================ -->
+  <div id="page-lostfound" class="page">
+    <h2 style="font-family:var(--font-head); font-size:1.6rem; font-weight:900; margin-bottom:0.25rem;">Lost & Found Registry</h2>
+    <p style="color:var(--dim); font-size:0.85rem; margin-bottom:1.5rem;">Record items found by drivers and manage passenger claims</p>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:1rem;"><i class="fa-solid fa-plus" style="color:var(--cyan)"></i> Record Found Item</div>
+      <div class="form-grid cols-4">
+        <div class="form-group">
+          <label>Item Description</label>
+          <input id="lostItem" placeholder="e.g. Black wallet, Samsung phone…">
+        </div>
+        <div class="form-group">
+          <label>Bus Registration</label>
+          <input id="lostBus" placeholder="e.g. ABX 1234 ZM">
+        </div>
+        <div class="form-group">
+          <label>Driver Name</label>
+          <input id="lostDriver" placeholder="Driver's name">
+        </div>
+        <div style="display:flex;align-items:flex-end;">
+          <button class="btn" onclick="reportFoundItem()"><i class="fa-solid fa-box-archive"></i> Log Item</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Full Registry</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <select id="filterType" onchange="renderLostTable()" style="width:auto; padding:7px 10px; font-size:0.8rem;">
+            <option value="">All Types</option>
+            <option value="Found">Found by Driver</option>
+            <option value="Passenger Report">Passenger Reports</option>
+          </select>
+          <select id="filterStatus" onchange="renderLostTable()" style="width:auto; padding:7px 10px; font-size:0.8rem;">
+            <option value="">All Status</option>
+            <option value="In Safe Keeping">In Safe Keeping</option>
+            <option value="Searching...">Searching</option>
+            <option value="Matched">Matched</option>
+            <option value="Claimed">Claimed</option>
+          </select>
+        </div>
+      </div>
+      <div class="search-bar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="searchRegistry" placeholder="Search by item, bus, or passenger name…" oninput="renderLostTable()">
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Date</th><th>Type</th><th>Description</th><th>Contact</th><th>Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="lostBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STATION: MAINTENANCE
+  ============================================================ -->
+  <div id="page-maintenance" class="page">
+    <h2 style="font-family:var(--font-head); font-size:1.6rem; font-weight:900; margin-bottom:0.25rem;">Maintenance & Infrastructure</h2>
+    <p style="color:var(--dim); font-size:0.85rem; margin-bottom:1.5rem;">Track and fund station improvement projects</p>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:1rem;"><i class="fa-solid fa-plus" style="color:var(--cyan)"></i> New Maintenance Project</div>
+      <div class="form-grid cols-3" style="margin-bottom:0.75rem;">
+        <div class="form-group">
+          <label>Project Name</label>
+          <input id="projName" placeholder="e.g. Paint Main Hall">
+        </div>
+        <div class="form-group">
+          <label>Budget Goal (K)</label>
+          <input type="number" id="projGoal" placeholder="50000">
+        </div>
+        <div class="form-group">
+          <label>Initial Funds (K)</label>
+          <input type="number" id="projInitial" placeholder="0">
+        </div>
+      </div>
+      <div class="form-grid cols-2" style="margin-bottom:0.75rem;">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="projCat">
+            <option value="Repair">Repair</option>
+            <option value="Upgrade">Upgrade</option>
+            <option value="Safety">Safety</option>
+            <option value="Aesthetic">Aesthetic</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="projPriority">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Critical">Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0.75rem;">
+        <label>Notes</label>
+        <textarea id="projNotes" rows="2" placeholder="Additional details about the project…"></textarea>
+      </div>
+      <button class="btn btn-success" onclick="addProject()"><i class="fa-solid fa-circle-plus"></i> Create Project</button>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3 style="font-family:var(--font-head); font-size:1rem;">Active Projects</h3>
+      <select id="projFilterPriority" onchange="renderProjects()" style="width:auto; padding:7px 10px; font-size:0.8rem;">
+        <option value="">All Priorities</option>
+        <option value="Critical">Critical</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+    </div>
+    <div class="project-grid" id="projectGrid"></div>
+  </div>
+
+  <!-- ============================================================
+       STATION: ACTIVITY LOG
+  ============================================================ -->
+  <div id="page-activity" class="page">
+    <h2 style="font-family:var(--font-head); font-size:1.6rem; font-weight:900; margin-bottom:0.25rem;">Activity Log</h2>
+    <p style="color:var(--dim); font-size:0.85rem; margin-bottom:1.5rem;">Full audit trail of all station operations</p>
+    <div class="card">
+      <div class="search-bar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="searchActivity" placeholder="Search logs…" oninput="renderActivityLog()">
+      </div>
+      <div id="activityLog"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PASSENGER: REPORT
+  ============================================================ -->
+  <div id="page-p-report" class="page">
+    <h2 style="font-family:var(--font-head); font-size:1.6rem; font-weight:900; margin-bottom:0.25rem;">Report a Lost Item</h2>
+    <p style="color:var(--dim); font-size:0.85rem; margin-bottom:1.5rem;">Lost something on a ZAST bus? File a report and we'll search for it.</p>
+
+    <div class="card" style="border-top: 2px solid var(--cyan);">
+      <div class="form-grid cols-2" style="margin-bottom:0.75rem;">
+        <div class="form-group">
+          <label>Your Full Name</label>
+          <input id="pName" placeholder="Full name">
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input id="pPhone" placeholder="+260…">
+        </div>
+      </div>
+      <div class="form-grid cols-2" style="margin-bottom:0.75rem;">
+        <div class="form-group">
+          <label>Bus Route / Destination</label>
+          <input id="pRoute" placeholder="e.g. Lusaka → Livingstone">
+        </div>
+        <div class="form-group">
+          <label>Approximate Date Lost</label>
+          <input type="date" id="pDate">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0.75rem;">
+        <label>Item Description (color, brand, contents, etc.)</label>
+        <textarea id="pDesc" rows="3" placeholder="Be as specific as possible – colour, brand, distinguishing features…"></textarea>
+      </div>
+      <button class="btn" style="width:100%;" onclick="submitPassengerReport()">
+        <i class="fa-solid fa-paper-plane"></i> Submit Report to Station
+      </button>
+    </div>
+
+    <!-- Show recent reports for this session -->
+    <div id="myRecentReports" style="display:none;" class="card">
+      <div class="card-title" style="margin-bottom:1rem;">Your Recent Reports</div>
+      <div id="myRecentBody"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PASSENGER: STATUS CHECK
+  ============================================================ -->
+  <div id="page-p-status" class="page">
+    <h2 style="font-family:var(--font-head); font-size:1.6rem; font-weight:900; margin-bottom:0.25rem;">Check Report Status</h2>
+    <p style="color:var(--dim); font-size:0.85rem; margin-bottom:1.5rem;">Enter your reference ID or phone number to find your report.</p>
+
+    <div class="card">
+      <div class="form-grid cols-2">
+        <div class="form-group">
+          <label>Reference ID (e.g. ZST-1234)</label>
+          <input id="lookupId" placeholder="ZST-XXXX">
+        </div>
+        <div class="form-group">
+          <label>OR Phone Number</label>
+          <input id="lookupPhone" placeholder="+260…">
+        </div>
+      </div>
+      <button class="btn" style="margin-top:0.75rem;" onclick="lookupReport()">
+        <i class="fa-solid fa-magnifying-glass"></i> Find My Report
+      </button>
+    </div>
+
+    <div id="lookupResult"></div>
+
+    <!-- Public registry view (all items, no personal details) -->
+    <div class="card" style="margin-top:1.25rem;">
+      <div class="card-title" style="margin-bottom:1rem;">Found Items Board</div>
+      <p style="font-size:0.82rem; color:var(--dim); margin-bottom:1rem;">Items currently held at the station. Recognise something? File a report above.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Item</th><th>Status</th></tr></thead>
+          <tbody id="publicBoard"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- ── CLAIM MODAL ── -->
+<div class="modal-overlay" id="claimModal">
+  <div class="modal">
+    <div class="modal-title"><i class="fa-solid fa-id-card"></i> Verify Claim</div>
+    <p style="font-size:0.85rem; color:var(--dim); margin-bottom:1rem;">Enter the passenger's NRC/ID number to verify and release the item.</p>
+    <div class="form-group">
+      <label>NRC / National ID Number</label>
+      <input id="nrcInput" placeholder="000000/00/0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-success" onclick="confirmClaim()"><i class="fa-solid fa-check"></i> Confirm Release</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div id="toast"><i id="toastIcon" class="fa-solid fa-check-circle"></i> <span id="toastMsg"></span></div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  DATA LAYER
+// ══════════════════════════════════════════════════
+const DB = {
+  registry() { return JSON.parse(localStorage.getItem('zast_v2_registry')) || []; },
+  projects() { return JSON.parse(localStorage.getItem('zast_v2_projects')) || []; },
+  activity() { return JSON.parse(localStorage.getItem('zast_v2_activity')) || []; },
+  saveRegistry(d) { localStorage.setItem('zast_v2_registry', JSON.stringify(d)); },
+  saveProjects(d) { localStorage.setItem('zast_v2_projects', JSON.stringify(d)); },
+  saveActivity(d) { localStorage.setItem('zast_v2_activity', JSON.stringify(d)); },
+};
+
+function logActivity(text, color = 'cyan') {
+  const log = DB.activity();
+  log.unshift({ text, color, time: new Date().toLocaleTimeString(), ts: Date.now() });
+  if (log.length > 200) log.pop();
+  DB.saveActivity(log);
+}
+
+// ══════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════
+let currentPortal = 'station';
+
+function switchPortal(portal, el) {
+  currentPortal = portal;
+  document.querySelectorAll('.portal-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  document.getElementById('station-nav').style.display = portal === 'station' ? 'block' : 'none';
+  document.getElementById('passenger-nav').style.display = portal === 'passenger' ? 'block' : 'none';
+
+  document.querySelectorAll('nav li').forEach(l => l.classList.remove('active'));
+
+  if (portal === 'station') {
+    document.querySelector('#station-nav nav li').classList.add('active');
+    showPage('dashboard', null, 'station');
+  } else {
+    document.querySelector('#passenger-nav nav li').classList.add('active');
+    showPage('p-report', null, 'passenger');
+    renderPublicBoard();
+  }
+}
+
+function showPage(id, el, portal) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+
+  if (el) {
+    const navGroup = portal === 'station' ? '#station-nav' : '#passenger-nav';
+    document.querySelectorAll(navGroup + ' nav li').forEach(l => l.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // Refresh data on page show
+  if (id === 'dashboard') refreshDashboard();
+  if (id === 'lostfound') renderLostTable();
+  if (id === 'maintenance') renderProjects();
+  if (id === 'activity') renderActivityLog();
+  if (id === 'p-status') renderPublicBoard();
+}
+
+// ══════════════════════════════════════════════════
+//  CLOCK
+// ══════════════════════════════════════════════════
+function updateClock() {
+  document.getElementById('clockDisplay').textContent = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ══════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type = 'cyan') {
+  const t = document.getElementById('toast');
+  const icons = { cyan: 'fa-check-circle', green: 'fa-check-double', amber: 'fa-triangle-exclamation' };
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').className = `fa-solid ${icons[type] || 'fa-check-circle'}`;
+  t.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+}
+
+// ══════════════════════════════════════════════════
+//  AUTO-MATCH ENGINE
+// ══════════════════════════════════════════════════
+function tokenize(str) {
+  return (str || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').split(/\s+/).filter(w => w.length > 2);
+}
+
+function matchScore(a, b) {
+  const ta = tokenize(a), tb = tokenize(b);
+  const common = ta.filter(t => tb.includes(t));
+  if (!ta.length || !tb.length) return 0;
+  return common.length / Math.max(ta.length, tb.length);
+}
+
+function runAutoMatch() {
+  const reg = DB.registry();
+  const foundItems = reg.filter(r => r.type === 'Found' && r.status !== 'Claimed');
+  const reports = reg.filter(r => r.type === 'Passenger Report' && r.status === 'Searching...');
+  const matches = [];
+
+  foundItems.forEach(f => {
+    reports.forEach(p => {
+      const score = matchScore(f.item, p.item);
+      if (score > 0.25) matches.push({ found: f, report: p, score });
+    });
+  });
+  matches.sort((a, b) => b.score - a.score);
+
+  // Update match count stats
+  document.getElementById('s-matches').textContent = matches.length;
+
+  const container = document.getElementById('matchContainer');
+  if (!matches.length) {
+    container.innerHTML = '<p style="color:var(--muted); font-size:0.85rem;">No potential matches found at this time.</p>';
+    return;
+  }
+
+  container.innerHTML = matches.map(m => `
+    <div class="match-banner">
+      <div class="match-icon">🔗</div>
+      <div class="match-text" style="flex:1;">
+        <h4>Possible Match — ${Math.round(m.score * 100)}% confidence</h4>
+        <p><strong style="color:var(--green)">Found:</strong> ${m.found.item} (Bus: ${m.found.bus || 'N/A'}) &nbsp;|&nbsp;
+           <strong style="color:var(--amber)">Reported by:</strong> ${m.report.owner || 'Passenger'} — "${m.report.item}"</p>
+      </div>
+      <button class="btn btn-sm" onclick="confirmMatch('${m.found.id}','${m.report.id}')">Mark Matched</button>
+    </div>
+  `).join('');
+}
+
+function confirmMatch(foundId, reportId) {
+  let reg = DB.registry();
+  const f = reg.find(r => r.id === foundId);
+  const p = reg.find(r => r.id === reportId);
+  if (f) f.status = 'Matched';
+  if (p) { p.status = 'Matched'; p.matchedTo = foundId; }
+  DB.saveRegistry(reg);
+  logActivity(`Matched "${f?.item || ''}" with report from ${p?.owner || 'passenger'}`, 'cyan');
+  showToast('Items marked as matched. Notify the passenger to collect.', 'green');
+  refreshDashboard();
+  runAutoMatch();
+  updateCounts();
+}
+
+// ══════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════
+function refreshDashboard() {
+  const reg = DB.registry();
+  document.getElementById('s-unclaimed').textContent = reg.filter(r => r.type === 'Found' && r.status !== 'Claimed').length;
+  document.getElementById('s-reports').textContent = reg.filter(r => r.type === 'Passenger Report' && r.status === 'Searching...').length;
+  document.getElementById('s-resolved').textContent = reg.filter(r => r.status === 'Claimed').length;
+  runAutoMatch();
+
+  // Recent activity
+  const log = DB.activity().slice(0, 5);
+  document.getElementById('dashRecentActivity').innerHTML = log.length
+    ? log.map(l => `<div class="activity-item"><div class="activity-dot ${l.color}"></div><div><div class="activity-text">${l.text}</div><div class="activity-time">${l.time}</div></div></div>`).join('')
+    : '<p style="color:var(--muted); font-size:0.85rem;">No recent activity.</p>';
+  
+  updateCounts();
+}
+
+function updateCounts() {
+  const reg = DB.registry();
+  const projs = DB.projects();
+  document.getElementById('cnt-lf').textContent = reg.filter(r => r.status !== 'Claimed').length;
+  document.getElementById('cnt-proj').textContent = projs.length;
+  // Pulse passenger dot if new unread reports
+  const unread = reg.filter(r => r.type === 'Passenger Report' && r.status === 'Searching...').length;
+  document.getElementById('passengerDot').classList.toggle('show', unread > 0);
+}
+
+// ══════════════════════════════════════════════════
+//  LOST & FOUND
+// ══════════════════════════════════════════════════
+function reportFoundItem() {
+  const item = document.getElementById('lostItem').value.trim();
+  const bus  = document.getElementById('lostBus').value.trim();
+  const drv  = document.getElementById('lostDriver').value.trim();
+  if (!item || !bus) return showToast('Please enter item description and bus registration.', 'amber');
+
+  const newItem = {
+    id: 'FND-' + Date.now(),
+    date: new Date().toLocaleDateString('en-GB'),
+    item, bus, driver: drv,
+    type: 'Found', status: 'In Safe Keeping',
+    timestamp: Date.now()
+  };
+
+  const reg = DB.registry();
+  reg.push(newItem);
+  DB.saveRegistry(reg);
+  logActivity(`Driver ${drv || 'Unknown'} logged found item: "${item}" (Bus ${bus})`, 'green');
+  showToast(`"${item}" added to safe keeping.`, 'green');
+
+  document.getElementById('lostItem').value = '';
+  document.getElementById('lostBus').value = '';
+  document.getElementById('lostDriver').value = '';
+  renderLostTable();
+  updateCounts();
+}
+
+function renderLostTable() {
+  let reg = DB.registry();
+  const typeF   = document.getElementById('filterType')?.value || '';
+  const statF   = document.getElementById('filterStatus')?.value || '';
+  const search  = (document.getElementById('searchRegistry')?.value || '').toLowerCase();
+
+  if (typeF) reg = reg.filter(r => r.type === typeF);
+  if (statF) reg = reg.filter(r => r.status === statF);
+  if (search) reg = reg.filter(r =>
+    (r.item||'').toLowerCase().includes(search) ||
+    (r.bus||'').toLowerCase().includes(search) ||
+    (r.owner||'').toLowerCase().includes(search) ||
+    (r.driver||'').toLowerCase().includes(search)
+  );
+  reg.sort((a,b) => b.timestamp - a.timestamp);
+
+  const rows = reg.map(r => {
+    const badgeClass = {
+      'Found': 'badge-found', 'Passenger Report': 'badge-reported',
+    }[r.type] || 'badge-found';
+    const statClass = {
+      'Claimed': 'badge-claimed', 'Searching...': 'badge-searching',
+      'Matched': 'badge-matched', 'In Safe Keeping': 'badge-found'
+    }[r.status] || 'badge-reported';
+
+    const actions = [];
+    if (r.status === 'In Safe Keeping' || r.status === 'Matched') {
+      actions.push(`<button class="btn btn-sm" onclick="openClaimModal('${r.id}')">Verify Claim</button>`);
+    }
+    if (r.status === 'Searching...' || r.status === 'Matched') {
+      actions.push(`<button class="btn btn-sm btn-amber" onclick="notifyPassenger('${r.id}')">Notify</button>`);
+    }
+    if (r.status === 'Claimed') {
+      actions.push(`<span style="font-size:0.75rem; color:var(--muted)">NRC: ${r.collectorId}</span>`);
+    }
+
+    return `<tr>
+      <td style="color:var(--dim); font-size:0.8rem;">${r.date}</td>
+      <td><span class="badge ${badgeClass}">${r.type}</span></td>
+      <td>
+        <div style="font-weight:500;">${r.item}</div>
+        <div style="font-size:0.75rem; color:var(--muted)">${r.bus ? 'Bus: '+r.bus : ''} ${r.driver ? '· '+r.driver : ''}</div>
+      </td>
+      <td style="font-size:0.82rem;">${r.owner || '—'}<br><span style="color:var(--dim); font-size:0.75rem;">${r.contact || ''}</span></td>
+      <td><span class="badge ${statClass}">${r.status}</span></td>
+      <td style="display:flex; gap:6px; flex-wrap:wrap;">${actions.join('')}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('lostBody').innerHTML = rows || '<tr><td colspan="6" style="color:var(--muted); text-align:center; padding:2rem;">No records match your filters.</td></tr>';
+}
+
+// ── CLAIM MODAL ──
+let pendingClaimId = null;
+function openClaimModal(id) {
+  pendingClaimId = id;
+  document.getElementById('nrcInput').value = '';
+  document.getElementById('claimModal').classList.add('open');
+}
+function closeModal() { document.getElementById('claimModal').classList.remove('open'); }
+function confirmClaim() {
+  const nrc = document.getElementById('nrcInput').value.trim();
+  if (!nrc) return showToast('Please enter NRC/ID number.', 'amber');
+
+  let reg = DB.registry();
+  const idx = reg.findIndex(r => r.id === pendingClaimId);
+  if (idx !== -1) {
+    const item = reg[idx];
+    item.status = 'Claimed';
+    item.collectorId = nrc;
+    item.claimedDate = new Date().toLocaleDateString('en-GB');
+    DB.saveRegistry(reg);
+    logActivity(`Item "${item.item}" claimed. NRC: ${nrc}`, 'green');
+    showToast(`Item released to collector (NRC: ${nrc})`, 'green');
+    closeModal();
+    renderLostTable();
+    refreshDashboard();
+    updateCounts();
+  }
+}
+
+function notifyPassenger(id) {
+  const reg = DB.registry();
+  const item = reg.find(r => r.id === id);
+  if (!item) return;
+  showToast(`Notification sent to ${item.owner || 'passenger'} at ${item.contact || 'N/A'}`, 'cyan');
+  logActivity(`Notification sent to ${item.owner || 'passenger'} for item "${item.item}"`, 'cyan');
+}
+
+// ══════════════════════════════════════════════════
+//  MAINTENANCE
+// ══════════════════════════════════════════════════
+const priorityColors = { Critical: 'var(--red)', High: 'var(--amber)', Medium: 'var(--cyan)', Low: 'var(--muted)' };
+const catIcons = { Repair: 'fa-wrench', Upgrade: 'fa-arrow-up', Safety: 'fa-shield-halved', Aesthetic: 'fa-paint-roller' };
+
+function addProject() {
+  const name  = document.getElementById('projName').value.trim();
+  const goal  = parseFloat(document.getElementById('projGoal').value);
+  const init  = parseFloat(document.getElementById('projInitial').value) || 0;
+  const cat   = document.getElementById('projCat').value;
+  const pri   = document.getElementById('projPriority').value;
+  const notes = document.getElementById('projNotes').value.trim();
+  if (!name || !goal) return showToast('Enter project name and budget goal.', 'amber');
+
+  const proj = { id: 'PRJ-' + Date.now(), name, goal, current: init, category: cat, priority: pri, notes, timestamp: Date.now(), completed: false };
+  const projects = DB.projects();
+  projects.push(proj);
+  DB.saveProjects(projects);
+  logActivity(`New project created: "${name}" — Goal: K${goal.toLocaleString()} [${pri}]`, 'amber');
+  showToast(`Project "${name}" created.`, 'cyan');
+
+  ['projName','projGoal','projInitial','projNotes'].forEach(id => { document.getElementById(id).value = ''; });
+  renderProjects();
+  updateCounts();
+}
+
+function fundProject(id) {
+  const amount = parseFloat(prompt('Enter contribution amount (K):'));
+  if (isNaN(amount) || amount <= 0) return;
+  let projects = DB.projects();
+  const idx = projects.findIndex(p => p.id === id);
+  if (idx !== -1) {
+    projects[idx].current += amount;
+    if (projects[idx].current >= projects[idx].goal) projects[idx].completed = true;
+    DB.saveProjects(projects);
+    logActivity(`K${amount.toLocaleString()} contributed to project "${projects[idx].name}"`, 'amber');
+    showToast(`K${amount.toLocaleString()} added to project.`, 'green');
+    renderProjects();
+  }
+}
+
+function deleteProject(id) {
+  if (!confirm('Delete this project?')) return;
+  let projects = DB.projects().filter(p => p.id !== id);
+  DB.saveProjects(projects);
+  renderProjects();
+  updateCounts();
+}
+
+function renderProjects() {
+  const filter = document.getElementById('projFilterPriority')?.value || '';
+  let projects = DB.projects();
+  if (filter) projects = projects.filter(p => p.priority === filter);
+  projects.sort((a,b) => {
+    const order = { Critical:0, High:1, Medium:2, Low:3 };
+    return (order[a.priority]||4) - (order[b.priority]||4);
+  });
+
+  document.getElementById('projectGrid').innerHTML = projects.length ? projects.map(p => {
+    const pct = Math.min((p.current / p.goal) * 100, 100).toFixed(1);
+    const col = priorityColors[p.priority] || 'var(--cyan)';
+    const icon = catIcons[p.category] || 'fa-screwdriver-wrench';
+    return `
+      <div class="proj-card" style="border-top: 2px solid ${col}">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <i class="fa-solid ${icon}" style="color:${col}; font-size:0.85rem;"></i>
+            <div class="proj-name">${p.name}</div>
+          </div>
+          <span style="font-size:0.7rem; color:${col}; background:rgba(255,255,255,0.05); padding:2px 7px; border-radius:10px;">${p.priority}</span>
+        </div>
+        <div class="proj-meta">${p.category}${p.notes ? ' · ' + p.notes.slice(0,40) + (p.notes.length>40?'…':'') : ''}</div>
+        <div class="progress-track">
+          <div class="progress-fill ${p.completed ? 'complete' : ''}" style="width:${pct}%"></div>
+        </div>
+        <div class="proj-amounts">
+          <span class="raised">K${p.current.toLocaleString()}</span>
+          <span class="goal">/ K${p.goal.toLocaleString()} (${pct}%)</span>
+        </div>
+        ${p.completed ? '<div style="color:var(--green); font-size:0.78rem; text-align:center; margin-top:10px; font-weight:700;">✓ FULLY FUNDED</div>' : `
+        <div style="display:flex; gap:6px; margin-top:12px;">
+          <button class="btn btn-outline" style="flex:1; justify-content:center;" onclick="fundProject('${p.id}')"><i class="fa-solid fa-plus"></i> Add Funds</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProject('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+        </div>`}
+      </div>`;
+  }).join('') : '<p style="color:var(--muted); font-size:0.85rem;">No projects yet.</p>';
+}
+
+// ══════════════════════════════════════════════════
+//  ACTIVITY LOG
+// ══════════════════════════════════════════════════
+function renderActivityLog() {
+  const search = (document.getElementById('searchActivity')?.value || '').toLowerCase();
+  let log = DB.activity();
+  if (search) log = log.filter(l => l.text.toLowerCase().includes(search));
+
+  document.getElementById('activityLog').innerHTML = log.length
+    ? log.map(l => `<div class="activity-item"><div class="activity-dot ${l.color}"></div><div><div class="activity-text">${l.text}</div><div class="activity-time">${l.time}</div></div></div>`).join('')
+    : '<p style="color:var(--muted);">No activity logged yet.</p>';
+}
+
+// ══════════════════════════════════════════════════
+//  PASSENGER PORTAL
+// ══════════════════════════════════════════════════
+const sessionReports = [];
+
+function submitPassengerReport() {
+  const name  = document.getElementById('pName').value.trim();
+  const phone = document.getElementById('pPhone').value.trim();
+  const desc  = document.getElementById('pDesc').value.trim();
+  const route = document.getElementById('pRoute').value.trim();
+  const date  = document.getElementById('pDate').value;
+  if (!name || !phone || !desc) return showToast('Please fill all required fields.', 'amber');
+
+  const reportId = 'ZST-' + Math.floor(1000 + Math.random() * 9000);
+  const newReport = {
+    id: reportId,
+    date: new Date().toLocaleDateString('en-GB'),
+    item: desc, contact: phone, owner: name, route,
+    lostDate: date,
+    type: 'Passenger Report', status: 'Searching...',
+    timestamp: Date.now()
+  };
+
+  const reg = DB.registry();
+  reg.push(newReport);
+  DB.saveRegistry(reg);
+  logActivity(`Passenger "${name}" filed lost item report: "${desc.slice(0,50)}"`, 'amber');
+  showToast(`Report filed! Reference ID: ${reportId}`, 'green');
+  sessionReports.push(newReport);
+
+  // Clear form
+  ['pName','pPhone','pDesc','pRoute','pDate'].forEach(id => { document.getElementById(id).value = ''; });
+
+  renderMyRecentReports();
+  updateCounts();
+}
+
+function renderMyRecentReports() {
+  if (!sessionReports.length) return;
+  const wrap = document.getElementById('myRecentReports');
+  wrap.style.display = 'block';
+  document.getElementById('myRecentBody').innerHTML = sessionReports.map(r => `
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-weight:500; font-size:0.875rem;">${r.item.slice(0,60)}${r.item.length>60?'…':''}</div>
+        <div style="font-size:0.75rem; color:var(--muted)">Ref: ${r.id} · ${r.date}</div>
+      </div>
+      <span class="badge badge-searching">${r.status}</span>
+    </div>
+  `).join('');
+}
+
+function lookupReport() {
+  const idVal    = document.getElementById('lookupId').value.trim().toUpperCase();
+  const phoneVal = document.getElementById('lookupPhone').value.trim();
+  const reg = DB.registry();
+
+  let found = [];
+  if (idVal) found = reg.filter(r => r.id === idVal);
+  else if (phoneVal) found = reg.filter(r => r.contact === phoneVal);
+
+  const result = document.getElementById('lookupResult');
+  if (!found.length) {
+    result.innerHTML = `<div class="card" style="border-color:var(--red); color:var(--dim);">No report found with that ID or phone number.</div>`;
+    return;
+  }
+
+  result.innerHTML = found.map(r => {
+    const statusMap = { 'Searching...': 'badge-searching', 'Matched': 'badge-matched', 'Claimed': 'badge-claimed' };
+    const statusMsg = {
+      'Searching...': 'Our staff are actively searching. Check back soon.',
+      'Matched': '🎉 Good news! We may have found your item. Please visit the station with your ID.',
+      'Claimed': 'This item has been collected.'
+    };
+    return `
+      <div class="card" style="border-top: 2px solid var(--cyan); margin-top:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+          <div>
+            <div style="font-size:0.75rem; color:var(--muted);">Ref: ${r.id}</div>
+            <div style="font-family:var(--font-head); font-size:1.1rem; font-weight:700; margin-top:2px;">${r.item}</div>
+          </div>
+          <span class="badge ${statusMap[r.status] || 'badge-reported'}">${r.status}</span>
+        </div>
+        <p style="font-size:0.85rem; color:var(--dim);">${statusMsg[r.status] || ''}</p>
+        <div style="margin-top:10px; font-size:0.78rem; color:var(--muted);">Filed: ${r.date} ${r.route ? '· Route: '+r.route : ''}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderPublicBoard() {
+  const reg = DB.registry().filter(r => r.type === 'Found' && r.status !== 'Claimed');
+  reg.sort((a,b) => b.timestamp - a.timestamp);
+  document.getElementById('publicBoard').innerHTML = reg.map(r => `
+    <tr>
+      <td style="color:var(--dim); font-size:0.8rem;">${r.date}</td>
+      <td>${r.item}</td>
+      <td><span class="badge badge-found">${r.status}</span></td>
+    </tr>
+  `).join('') || '<tr><td colspan="3" style="color:var(--muted); text-align:center; padding:2rem;">No unclaimed items at station.</td></tr>';
+}
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+window.onload = () => {
+  refreshDashboard();
+};
+
+// Listen for storage changes (cross-tab sync)
+window.addEventListener('storage', () => {
+  refreshDashboard();
+  if (document.querySelector('.page.active')?.id === 'page-lostfound') renderLostTable();
+  if (document.querySelector('.page.active')?.id === 'page-p-status') renderPublicBoard();
+});
+</script>
+</body>
+</html>
